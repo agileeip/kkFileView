@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,6 +25,9 @@ import java.util.Map;
  */
 @Component
 public class FileUtils {
+
+    public static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
+
     Logger log= LoggerFactory.getLogger(getClass());
 
     @Autowired
@@ -89,8 +91,11 @@ public class FileUtils {
         if (Arrays.asList(media).contains(fileType.toLowerCase())) {
             return FileType.media;
         }
-        if("pdf".equalsIgnoreCase(fileType)){
+        if ("pdf".equalsIgnoreCase(fileType)) {
             return FileType.pdf;
+        }
+        if ("dwg".equalsIgnoreCase(fileType)) {
+            return FileType.cad;
         }
         return FileType.other;
     }
@@ -234,9 +239,8 @@ public class FileUtils {
      */
     public void doActionConvertedFile(String outFilePath) {
         StringBuffer sb = new StringBuffer();
-        String charset = ConfigConstants.getConvertedFileCharset();
         try (InputStream inputStream = new FileInputStream(outFilePath);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset))){
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_CONVERTER_CHARSET))){
             String line;
             while(null != (line = reader.readLine())){
                 if (line.contains("charset=gb2312")) {
@@ -247,7 +251,7 @@ public class FileUtils {
             // 添加sheet控制头
             sb.append("<script src=\"js/jquery-3.0.0.min.js\" type=\"text/javascript\"></script>");
             sb.append("<script src=\"js/excel.header.js\" type=\"text/javascript\"></script>");
-            sb.append("<link rel=\"stylesheet\" href=\"http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css\">");
+            sb.append("<link rel=\"stylesheet\" href=\"//cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css\">");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -328,26 +332,19 @@ public class FileUtils {
 
 
     public FileAttribute getFileAttribute(String url) {
-        String decodedUrl = null;
-        try {
-            decodedUrl = URLDecoder.decode(url, "utf-8");
-        } catch (UnsupportedEncodingException e){
-            log.error("url解码失败");
-        }
         String fileName;
         FileType type;
         String suffix;
-
-        String fullFileName = getUrlParameterReg(decodedUrl, "fullfilename");
+        String fullFileName = getUrlParameterReg(url, "fullfilename");
         if (!StringUtils.isEmpty(fullFileName)) {
             fileName = fullFileName;
             type = typeFromFileName(fileName);
             suffix = suffixFromFileName(fileName);
         } else {
-            fileName = getFileNameFromURL(decodedUrl);
+            fileName = getFileNameFromURL(url);
             type = typeFromUrl(url);
             suffix = suffixFromUrl(url);
         }
-        return new FileAttribute(type,suffix,fileName,url,decodedUrl);
+        return new FileAttribute(type,suffix,fileName,url,url);
     }
 }

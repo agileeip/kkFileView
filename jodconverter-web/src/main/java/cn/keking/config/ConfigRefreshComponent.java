@@ -22,13 +22,14 @@ public class ConfigRefreshComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRefreshComponent.class);
 
-    public static final String DEFAULT_TXT_TYPE = "txt,html,xml,properties,md,java,py,c,cpp,sql";
+    public static final String DEFAULT_CACHE_ENABLED = "true";
+    public static final String DEFAULT_TXT_TYPE = "txt,html,htm,asp,jsp,xml,json,properties,md,gitignore,,java,py,c,cpp,sql,sh,bat,m,bas,prg,cmd";
     public static final String DEFAULT_MEDIA_TYPE = "mp3,wav,mp4,flv";
-    public static final String DEFAULT_CONVERTER_CHARSET = System.getProperty("sun.jnu.encoding");
+
     public static final String DEFAULT_FTP_USERNAME = null;
     public static final String DEFAULT_FTP_PASSWORD = null;
     public static final String DEFAULT_FTP_CONTROL_ENCODING = "UTF-8";
-
+    public static final String DEFAULT_BASE_URL = "default";
 
     @PostConstruct
     void refresh() {
@@ -43,34 +44,38 @@ public class ConfigRefreshComponent {
                 Properties properties = new Properties();
                 String text;
                 String media;
+                Boolean cacheEnabled;
                 String[] textArray;
                 String[] mediaArray;
-                String convertedFileCharset;
                 String officePreviewType;
                 String ftpUsername;
                 String ftpPassword;
                 String ftpControlEncoding;
                 String configFilePath = OfficeUtils.getCustomizedConfigPath();
+                String baseUrl;
                 while (true) {
                     FileReader fileReader = new FileReader(configFilePath);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
                     properties.load(bufferedReader);
+                    OfficeUtils.restorePropertiesFromEnvFormat(properties);
+                    cacheEnabled = new Boolean(properties.getProperty("cache.enabled", DEFAULT_CACHE_ENABLED));
                     text = properties.getProperty("simText", DEFAULT_TXT_TYPE);
                     media = properties.getProperty("media", DEFAULT_MEDIA_TYPE);
-                    convertedFileCharset = properties.getProperty("converted.file.charset", DEFAULT_CONVERTER_CHARSET);
                     officePreviewType = properties.getProperty("office.preview.type", OfficeFilePreviewImpl.OFFICE_PREVIEW_TYPE_IMAGE);
                     ftpUsername = properties.getProperty("ftp.username", DEFAULT_FTP_USERNAME);
                     ftpPassword = properties.getProperty("ftp.password", DEFAULT_FTP_PASSWORD);
                     ftpControlEncoding = properties.getProperty("ftp.control.encoding", DEFAULT_FTP_CONTROL_ENCODING);
                     textArray = text.split(",");
                     mediaArray = media.split(",");
+                    baseUrl = properties.getProperty("base.url", DEFAULT_BASE_URL);
+                    ConfigConstants.setCacheEnabled(cacheEnabled);
                     ConfigConstants.setSimText(textArray);
                     ConfigConstants.setMedia(mediaArray);
-                    ConfigConstants.setConvertedFileCharset(convertedFileCharset);
                     ConfigConstants.setOfficePreviewType(officePreviewType);
                     ConfigConstants.setFtpUsername(ftpUsername);
                     ConfigConstants.setFtpPassword(ftpPassword);
                     ConfigConstants.setFtpControlEncoding(ftpControlEncoding);
+                    ConfigConstants.setBaseUrl(baseUrl);
                     bufferedReader.close();
                     fileReader.close();
                     Thread.sleep(1000L);

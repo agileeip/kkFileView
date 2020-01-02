@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <title>PDF预览</title>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style type="text/css">
         body{
@@ -20,7 +22,7 @@
     <iframe src="" width="100%" frameborder="0"></iframe>
 
 <#--    <img src="images/left.png" style="position: fixed; cursor: pointer; top: 40%; right: 60px; z-index: 999;" alt="使用图片预览" title="使用图片预览" onclick="goForImage()"/>-->
-    <span class="fa fa-file-image-o fa-5x" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" title="使用图片预览" onclick="goForImage()"></span>
+    <span class="fa fa-file-image-o fa-4x" style="position: fixed; cursor: pointer; top: 40%; right: 50px; z-index: 999;" title="使用图片预览" onclick="goForImage()"></span>
 
 
 </body>
