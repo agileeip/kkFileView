@@ -2,13 +2,19 @@
 
 <html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0" />
     <title>kkFileView演示首页</title>
-    <link rel="stylesheet" href="css/viewer.min.css">
-    <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="//cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.css" />
-    <style type="text/css">
-    </style>
+    <link rel="stylesheet" href="css/viewer.min.css" />
+    <link rel="stylesheet" href="css/loading.css" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="bootstrap-table/bootstrap-table.min.css" />
+    <link rel="stylesheet" href="gitalk/gitalk.css" />
+    <script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery.form.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="bootstrap-table/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="gitalk/gitalk.min.js"></script>
 </head>
 
 <body>
@@ -54,7 +60,6 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         </div>
         <div id="collapseTwo" class="panel-collapse collapse">
             <div class="panel-body">
-                <p style="color: red;">因为是测试所以一种文件只允许上传一个</p>
                 <div style="padding: 10px">
                     <form enctype="multipart/form-data" id="fileUpload">
                         <input type="file" name="file" />
@@ -67,7 +72,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
             </div>
         </div>
     </div>
-    <div class="panel">
+    <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion"
@@ -79,6 +84,24 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         <div id="collapseThree" class="panel-collapse collapse in">
             <div class="panel-body">
                 <div>
+                    2020年05月20日 ：<br>
+                        1. 新增支持全局水印，并支持通过参数动态改变水印内容<br>
+                        2. 新增支持CAD文件预览<br>
+                        3. 新增base.url配置，支持使用nginx反向代理和使用context-path<br>
+                        4. 支持所有配置项支持从环境变量里读取，方便Docker镜像部署和集群中大规模使用<br>
+                        5. 支持配置限信任站点（只能预览来自信任点的文件源），保护预览服务不被滥用<br>
+                        6. 支持配置自定义缓存清理时间（cron表达式）<br>
+                        7. 全部能识别的纯文本直接预览，不用再转跳下载，如.md .java .py等<br>
+                        8. 支持配置限制转换后的PDF文件下载<br>
+                        9. 优化maven打包配置，解决 .sh 脚本可能出现换行符问题<br>
+                        10. 将前端所有CDN依赖放到本地，方便没有外网连接的用户使用<br>
+                        11. 首页评论服务由搜狐畅言切换到Gitalk<br>
+                        12. 修复url中包含特殊字符可能会引起的预览异常<br>
+                        13. 修复转换文件队列addTask异常<br>
+                        14. 修复其他已经问题<br>
+                        15. 官网建设：<a href="https://kkfileview.keking.cn">https://kkfileview.keking.cn</a><br>
+                        16. 官方Docker镜像仓库建设：<a href="https://hub.docker.com/r/keking/kkfileview">https://hub.docker.com/r/keking/kkfileview</a><br><br>
+
                     2019年06月18日 ：<br>
                         1. 支持自动清理缓存及预览文件<br>
                         2. 支持http/https下载流url文件预览<br>
@@ -114,18 +137,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
             </div>
         </div>
         <div class="panel-body">
-            <div style="width: 80%">
-                <!-- 多说评论框 start -->
-                <div id="SOHUCS" sid="kkfileView"></div>
-                <script charset="utf-8" type="text/javascript" src="//changyan.sohu.com/upload/changyan.js" ></script>
-                <script type="text/javascript">
-                    window.changyan.api.config({
-                        appid: 'cytx6wU4N',
-                        conf: 'prod_c53858654f21b8f813c14b7681f5405a'
-                    });
-                </script>
-                <!-- 多说评论框 end -->
-            </div>
+            <div id = "comments"></div>
         </div>
 
     </div>
@@ -153,10 +165,6 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         </div>
     </div>
 </div>
-<script src="js/jquery-3.0.0.min.js" type="text/javascript"></script>
-<script src="//cdn.bootcss.com/jquery.form/3.09/jquery.form.min.js" type="text/javascript"></script>
-<script src="//cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.js"></script>
 <script>
     function deleteFile(fileName) {
         $.ajax({
@@ -187,7 +195,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
         }).on('pre-body.bs.table', function (e,data) {
             // 每个data添加一列用来操作
             $(data).each(function (index, item) {
-                item.action = "<a class='btn btn-default' target='_blank' href='${baseUrl}onlinePreview?url="+ encodeURIComponent('${localBaseUrl}' + item.fileName ) +"'>预览</a>" +
+                item.action = "<a class='btn btn-default' target='_blank' href='${baseUrl}onlinePreview?url="+ encodeURIComponent('${baseUrl}' + item.fileName) +"'>预览</a>" +
                     "<a class='btn btn-default' href='javascript:void(0);' onclick='deleteFile(\""+item.fileName+"\")'>删除</a>";
             });
             return data;
@@ -195,9 +203,7 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
             return data;
         });
 
-        /**
-         *
-         */
+
         function showLoadingDiv() {
             var height = window.document.documentElement.clientHeight - 1;
             $(".loading_container").css("height", height).show();
@@ -210,17 +216,31 @@ window.open('http://127.0.0.1:8012/picturesPreview?urls='+encodeURIComponent(fil
                     // 上传完成，刷新table
                     if (1 == data.code) {
                         alert(data.msg);
-                    }else{
+                    } else {
                         $('#table').bootstrapTable('refresh', {});
                     }
                     $(".loading_container").hide();
                 },
-                error: function (error) { alert(error); $(".loading_container").hide();},
+                error: function () {
+                    alert('上传失败，请联系管理员');
+                    $(".loading_container").hide();
+                },
                 url: 'fileUpload', /*设置post提交到的页面*/
                 type: "post", /*设置表单以post方法提交*/
                 dataType: "json" /*设置返回值类型为文本*/
             });
         });
+        var gitalk = new Gitalk({
+            clientID: '525d7f16e17aab08cef5',
+            clientSecret: 'd1154e3aee5c8f1cbdc918b5c97a4f4157e0bfd9',
+            repo: 'kkFileView',
+            owner: 'kekingcn',
+            admin: ['kekingcn,klboke,gitchenjh'],
+            language: 'zh-CN',
+            id: location.pathname,
+            distractionFreeMode: false
+        })
+        gitalk.render((document.getElementById('comments')))
     });
 </script>
 </body>

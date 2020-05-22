@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>图片预览</title>
     <link rel="stylesheet" href="css/viewer.min.css">
     <style>
-        * { margin: 0; padding: 0;}
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+        body {
+            background-color: #404040;
+        }
         #dowebok { width: 800px; margin: 0 auto; font-size: 0;}
         #dowebok li {  display: inline-block;width: 50px;height: 50px; margin-left: 1%; padding-top: 1%;}
         /*#dowebok li img { width: 200%;}*/
@@ -13,16 +23,24 @@
 </head>
 <body>
 <ul id="dowebok">
-        <#list imgurls as img>
-            <li><img id="${img}"  url="${img}" src="${img}" width="1px" height="1px"></li>
-        </#list>
+    <#list imgurls as img>
+        <#if img?contains("http://") || img?contains("https://")>
+            <#assign img="${img}">
+        <#else>
+            <#assign img="${baseUrl}${img}">
+        </#if>
+        <li><img id="${img}"  url="${img}" src="${img}" width="1px" height="1px"></li>
+    </#list>
 </ul>
 <script src="js/jquery-3.0.0.min.js"></script>
 <script src="js/viewer.min.js"></script>
+<script src="js/watermark.js" type="text/javascript"></script>
 <script>
     var viewer = new Viewer(document.getElementById('dowebok'), {
         url: 'src',
-        navbar:false,
+        navbar: false,
+        button: false,
+        backdrop: false,
         loop : true
     });
     document.getElementById("${currentUrl}").click();
@@ -60,6 +78,28 @@
         prev.on('mouseout',outHandler);
         prev.on('mouseover',overHandler);
     });
+    /*初始化水印*/
+    window.onload = function() {
+        var watermarkTxt = '${watermarkTxt}';
+        if (watermarkTxt !== '') {
+            watermark.init({
+                watermark_txt: '${watermarkTxt}',
+                watermark_x: 0,
+                watermark_y: 0,
+                watermark_rows: 0,
+                watermark_cols: 0,
+                watermark_x_space: ${watermarkXSpace},
+                watermark_y_space: ${watermarkYSpace},
+                watermark_font: '${watermarkFont}',
+                watermark_fontsize: '${watermarkFontsize}',
+                watermark_color:'${watermarkColor}',
+                watermark_alpha: ${watermarkAlpha},
+                watermark_width: ${watermarkWidth},
+                watermark_height: ${watermarkHeight},
+                watermark_angle: ${watermarkAngle},
+            });
+        }
+    }
 </script>
 </body>
 
