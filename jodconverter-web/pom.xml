@@ -12,7 +12,7 @@
 
     <groupId>cn.keking</groupId>
     <artifactId>kkFileView</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
 
 
     <properties>
@@ -200,13 +200,14 @@
                 <includes>
                     <include>**/*</include>
                 </includes>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
             </resource>
             <resource>
                 <directory>src/main/config</directory>
                 <excludes>
                     <exclude>${build.exclude.resource}</exclude>
                 </excludes>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
